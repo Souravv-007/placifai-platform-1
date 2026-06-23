@@ -3,129 +3,39 @@ import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import { roadmapAPI } from '../services/api'
 import useUIStore from '../store/uiStore'
+import Topbar from '../components/Topbar'
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap');
-  
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   .r-root { 
     display: flex; 
     min-height: 100vh; 
-    background: #050608; 
+    background: #0f1117; 
     color: #e8e8f0; 
     font-family: 'DM Sans', sans-serif;
     overflow-x: hidden;
   }
 
-  /* Sidebar Redesign */
-  .sidebar { 
-    width: 240px; 
-    height: 100vh; 
-    background: #0a0b10; 
-    border-right: 1px solid rgba(255, 255, 255, 0.03); 
-    display: flex; 
-    flex-direction: column; 
-    padding: 32px 0; 
-    position: fixed; 
-    left: 0; 
-    top: 0; 
-    bottom: 0; 
-    z-index: 100;
-  }
-  
-  .sb-brand { 
-    padding: 0 32px 32px; 
-    display: flex; 
-    align-items: center; 
-    gap: 12px;
-  }
-  
-  .sb-logo-box {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 16px;
-  }
-
-  .sb-nav { flex: 1; padding: 0 16px; }
-  
-  .sb-item { 
-    display: flex; 
-    align-items: center; 
-    gap: 12px; 
-    padding: 12px 16px; 
-    border-radius: 12px; 
-    font-size: 14px; 
-    font-weight: 500;
-    color: rgba(232, 232, 240, 0.4); 
-    cursor: pointer; 
-    transition: all 0.2s; 
-    background: none; 
-    border: none; 
-    width: 100%; 
-    text-align: left; 
-    margin-bottom: 4px; 
-    font-family: inherit;
-  }
-  
-  .sb-item:hover { 
-    background: rgba(255, 255, 255, 0.03); 
-    color: rgba(232, 232, 240, 0.8); 
-  }
-  
-  .sb-item.active { 
-    background: rgba(99, 102, 241, 0.1); 
-    color: #818cf8; 
-  }
-  
-  .sb-bottom { padding: 16px; border-top: 1px solid rgba(255, 255, 255, 0.03); }
-  
-  .upg-card {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-  
-  .upg-title { font-size: 13px; font-weight: 700; color: #818cf8; margin-bottom: 8px; }
-  .upg-desc { font-size: 11px; color: rgba(232, 232, 240, 0.4); line-height: 1.5; margin-bottom: 16px; }
-  
-  .upg-btn {
-    width: 100%;
-    padding: 10px;
-    background: #6366f1;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
   /* Main Content Redesign */
   .main-wrapper {
     flex: 1;
-    margin-left: 240px;
+    margin-left: 200px;
     background: #050608;
     position: relative;
     min-height: 100vh;
   }
-  
-  .top-glow {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1000px;
-    height: 400px;
+
+  .content {
+    position: relative;
+    z-index: 1;
+    padding: 84px 40px 60px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
     background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
@@ -332,15 +242,6 @@ const styles = `
   .animate { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
 `
 
-const NAV = [
-  { ico: 'DB', label: 'Dashboard', path: '/dashboard' },
-  { ico: 'RM', label: 'Road Map', path: '/roadmap' },
-  { ico: 'PH', label: 'Prep Hub', path: '/prep' },
-  { ico: 'MI', label: 'Mock Sessions', path: '/interview' },
-  { ico: 'AN', label: 'Analytics', path: '/analytics' },
-  { ico: 'PR', label: 'Progress', path: '/progress' },
-]
-
 export default function Roadmap() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
@@ -413,37 +314,8 @@ export default function Roadmap() {
     <div className="r-root">
       <style>{styles}</style>
 
-      <aside className="sidebar">
-        <div className="sb-brand">
-          <div className="sb-logo-box">P</div>
-          <span style={{ fontWeight: 700, fontSize: '18px' }}>PlacifAI</span>
-        </div>
-        
-        <nav className="sb-nav">
-          {NAV.map((item) => (
-            <button
-              key={item.path}
-              className={`sb-item ${window.location.pathname === item.path ? 'active' : ''}`}
-              onClick={() => navigate(item.path)}
-            >
-              <span style={{ fontSize: '12px', fontWeight: 700, opacity: 0.5 }}>{item.ico}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="sb-bottom">
-          <div className="upg-card">
-            <div className="upg-title">Go Pro</div>
-            <div className="upg-desc">Get unlimited mock sessions and expert resume review.</div>
-            <button className="upg-btn" onClick={openUpgrade}>Upgrade Now</button>
-          </div>
-          <button className="sb-item" onClick={openHelp}>Help Center</button>
-          <button className="sb-item" onClick={() => { logout(); navigate('/login') }}>Logout</button>
-        </div>
-      </aside>
-
       <div className="main-wrapper">
+        <Topbar placeholder="Search roadmap topics..." />
         <div className="top-glow" />
         
         <div className="content">

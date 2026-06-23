@@ -4,33 +4,19 @@ import useAuthStore from '../store/authStore'
 import useResumeStore from '../store/resumeStore'
 import { resumeAPI, roadmapAPI } from '../services/api'
 import useUIStore from '../store/uiStore'
+import Topbar from '../components/Topbar'
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
   .ph-root { display: block; min-height: 100vh; background: #0f1117; color: #e8e8f0; font-family: 'DM Sans', sans-serif; }
 
-  .sidebar { width: 200px; min-height: 100vh; background: #0a0b0f; border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; padding: 24px 0; position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; }
-  .sb-logo { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 16px; font-size: 16px; font-weight: 600; }
-  .sb-nav { flex: 1; padding: 0 10px; }
-  .sb-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; color: rgba(232,232,240,0.45); cursor: pointer; transition: all 0.2s; background: none; border: none; width: 100%; text-align: left; margin-bottom: 2px; font-family: 'DM Sans', sans-serif; }
-  .sb-item:hover { background: rgba(255,255,255,0.05); color: rgba(232,232,240,0.8); }
-  .sb-item.active { background: rgba(99,102,241,0.15); color: #818cf8; }
-  .sb-item .ico { width: 26px; text-align: center; font-size: 11px; font-family: 'DM Mono', monospace; }
-  .sb-bottom { padding: 14px 10px; border-top: 1px solid rgba(255,255,255,0.06); }
-  .upg-btn { width: 100%; padding: 11px 14px; background: linear-gradient(135deg,#6366f1,#8b5cf6); border: none; border-radius: 8px; color: white; font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 6px; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; text-align: left; }
-  .upg-btn:hover { opacity: 0.85; }
-
-  .topbar { position: fixed; top: 0; left: 200px; right: 0; height: 58px; background: rgba(15,17,23,0.97); border-bottom: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; z-index: 40; }
   .tb-nav { display: flex; gap: 28px; }
-  .tb-link { font-size: 13px; color: rgba(232,232,240,0.4); background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 4px 0; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .tb-link { font-size: 13px; color: rgba(232, 232, 240, 0.4); background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; padding: 4px 0; border-bottom: 2px solid transparent; transition: all 0.2s; }
   .tb-link:hover { color: #e8e8f0; }
   .tb-link.active { color: #e8e8f0; border-bottom-color: #6366f1; }
-  .tb-right { display: flex; align-items: center; gap: 10px; }
-  .tb-icon { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: rgba(232,232,240,0.5); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; font-family: 'DM Mono', monospace; }
-  .tb-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: white; cursor: pointer; border: 2px solid rgba(99,102,241,0.4); }
 
-  .main { margin-left: 200px; padding: 74px 32px 48px; min-height: 100vh; }
+  .main { margin-left: 200px; padding: 84px 32px 48px; min-height: 100vh; }
   .pg-top { margin-bottom: 32px; animation: fadeUp 0.4s ease both; }
   .pg-title { font-size: 38px; font-weight: 700; margin-bottom: 10px; }
   .pg-sub { font-size: 14px; color: rgba(232,232,240,0.4); line-height: 1.7; max-width: 560px; }
@@ -101,16 +87,7 @@ const styles = `
   .f-link:hover { color: rgba(232,232,240,0.6); }
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: translateY(0) } }
-`
-
-const NAV = [
-  { ico: 'PH', label: 'Prep Hub', id: 'prep', path: '/prep' },
-  { ico: 'DB', label: 'Dashboard', id: 'dashboard', path: '/dashboard' },
-  { ico: 'RM', label: 'Roadmap', id: 'roadmap', path: '/roadmap' },
-  { ico: 'AN', label: 'Analytics', id: 'analytics', path: '/analytics' },
-  { ico: 'MI', label: 'Mock Interview', id: 'interview', path: '/interview' },
-  { ico: 'PR', label: 'Progress', id: 'progress', path: '/progress' },
-]
+  `
 
 const FALLBACK_STRENGTHS = [
   'Your strongest recruiter signals will appear here after analysis.',
@@ -248,45 +225,12 @@ export default function PrepHub() {
     <div className="ph-root">
       <style>{styles}</style>
 
-      <aside className="sidebar">
-        <div className="sb-logo">Placifai AI</div>
-        <nav className="sb-nav">
-          {NAV.map((item) => (
-            <button
-              key={item.id}
-              className={`sb-item ${item.id === 'prep' ? 'active' : ''}`}
-              onClick={() => navigate(item.path)}
-            >
-              <span className="ico">{item.ico}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="sb-bottom">
-          <button className="upg-btn" onClick={openUpgrade}>Unlock Pro Coaching</button>
-          <button className="sb-item" onClick={openHelp}>
-            <span className="ico">?</span>
-            Help Center
-          </button>
-          <button className="sb-item" onClick={() => { logout(); navigate('/login') }}>
-            <span className="ico">→</span>
-            Logout
-          </button>
-        </div>
-      </aside>
-
-      <header className="topbar">
+      <Topbar showSearch={false}>
         <nav className="tb-nav">
           <button className="tb-link" onClick={() => navigate('/dashboard')}>Dashboard</button>
           <button className="tb-link active">Prep Hub</button>
-          <button className="tb-link" onClick={() => navigate('/analytics')}>Analytics</button>
         </nav>
-        <div className="tb-right">
-          <button className="tb-icon">🔔</button>
-          <button className="tb-icon">⚙</button>
-          <div className="tb-avatar">{firstName[0].toUpperCase()}</div>
-        </div>
-      </header>
+      </Topbar>
 
       <main className="main">
         <div className="pg-top">
