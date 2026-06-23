@@ -3,32 +3,79 @@ import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/authStore'
 import useUIStore from '../store/uiStore'
 import { dashboardAPI } from '../services/api'
+import Topbar from '../components/Topbar'
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap');
+
+  @keyframes streamDown {
+    0% { transform: translateY(-100%); opacity: 0; }
+    50% { opacity: 0.1; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+
+  @keyframes pulseRing {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { opacity: 0.2; }
+    100% { transform: scale(1.3); opacity: 0; }
+  }
+
+  @keyframes cardEntrance {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  .dash-root { display: block; min-height: 100vh; background: #0f1117; color: #e8e8f0; font-family: 'DM Sans', sans-serif; }
-  .sidebar { width: 200px; min-height: 100vh; background: #0a0b0f; border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; padding: 24px 0; position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; }
-  .sidebar-brand { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 16px; }
-  .brand-name { font-size: 16px; font-weight: 600; }
-  .brand-sub { font-size: 11px; color: rgba(232,232,240,0.35); margin-top: 2px; }
-  .sidebar-nav { flex: 1; padding: 0 10px; }
-  .s-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; color: rgba(232,232,240,0.45); cursor: pointer; transition: all 0.2s; background: none; border: none; width: 100%; text-align: left; margin-bottom: 2px; font-family: 'DM Sans', sans-serif; }
-  .s-item:hover { background: rgba(255,255,255,0.05); color: rgba(232,232,240,0.8); }
-  .s-item.active { background: rgba(99,102,241,0.15); color: #818cf8; }
-  .s-item .ico { width: 18px; text-align: center; font-size: 14px; }
-  .sidebar-bottom { padding: 14px 10px; border-top: 1px solid rgba(255,255,255,0.06); }
-  .upgrade-btn { width: 100%; padding: 11px 14px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 8px; color: white; font-size: 13px; font-weight: 500; cursor: pointer; margin-bottom: 6px; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; text-align: left; }
-  .upgrade-btn:hover { opacity: 0.85; }
-  .topbar { position: fixed; top: 0; left: 200px; right: 0; height: 60px; background: rgba(15,17,23,0.97); border-bottom: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; z-index: 40; }
-  .search { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 14px; width: 230px; }
-  .search input { background: none; border: none; outline: none; color: rgba(232,232,240,0.6); font-size: 13px; width: 100%; font-family: 'DM Sans', sans-serif; }
-  .search input::placeholder { color: rgba(232,232,240,0.25); }
-  .t-right { display: flex; align-items: center; gap: 10px; }
-  .t-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: rgba(232,232,240,0.5); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
-  .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: white; cursor: pointer; border: 2px solid rgba(99,102,241,0.4); }
-  .main { margin-left: 200px; padding: 76px 32px 32px; min-height: 100vh; }
-  .pg-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; animation: fadeUp 0.4s ease both; }
+
+  .dash-root { 
+    display: block; 
+    min-height: 100vh; 
+    background: #0f1117; 
+    color: #e8e8f0; 
+    font-family: 'DM Sans', sans-serif;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .neural-stream {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, #6366f1, transparent);
+    animation: streamDown 4s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .main { 
+    margin-left: 200px; 
+    padding: 84px 32px 32px; 
+    min-height: 100vh; 
+    position: relative;
+    z-index: 2;
+  }
+
+  .j-card, .n-card, .s-card, .a-card {
+    animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .s-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .s-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    animation: pulseRing 3s infinite;
+    pointer-events: none;
+  }
+
+  .pg-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
   .w-title { font-size: 34px; font-weight: 600; margin-bottom: 6px; }
   .w-title span { color: #818cf8; }
   .w-sub { font-size: 13px; color: rgba(232,232,240,0.4); }
@@ -88,15 +135,6 @@ const styles = `
   .fab:hover { transform: scale(1.1); }
   @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
 `
-
-const NAV = [
-  { ico: '⊞', label: 'Dashboard', id: 'dashboard', path: '/dashboard' },
-  { ico: '📍', label: 'Road Map', id: 'roadmap', path: '/roadmap' },
-  { ico: '📊', label: 'Analytics', id: 'analytics', path: '/analytics' },
-  { ico: '🎤', label: 'Mock Interview', id: 'interview', path: '/interview' },
-  { ico: '⚡', label: 'Prep Hub', id: 'prep', path: '/prep' },
-  { ico: '📈', label: 'Progress', id: 'progress', path: '/progress' },
-]
 
 export default function Dashboard() {
   // ✅ ALL HOOKS MUST BE CALLED AT THE TOP - BEFORE ANY CONDITIONAL RETURNS
@@ -183,40 +221,22 @@ export default function Dashboard() {
   return (
     <div className="dash-root">
       <style>{styles}</style>
+      
+      {/* Neural Stream Background */}
+      {[...Array(10)].map((_, i) => (
+        <div 
+          key={i} 
+          className="neural-stream" 
+          style={{ 
+            left: `${i * 10 + Math.random() * 5}%`, 
+            animationDelay: `${Math.random() * 4}s`,
+            animationDuration: `${3 + Math.random() * 2}s`,
+            opacity: 0.05 + Math.random() * 0.1
+          }} 
+        />
+      ))}
 
-      <aside className="sidebar">
-        <div className="sidebar-brand">
-          <div className="brand-name">Placifai AI</div>
-          <div className="brand-sub">AI Career Coach</div>
-        </div>
-        <nav className="sidebar-nav">
-          {NAV.map(n => (
-            <button key={n.id} className={`s-item ${active === n.id ? 'active' : ''}`}
-              onClick={() => { setActive(n.id); navigate(n.path) }}>
-              <span className="ico">{n.ico}</span>{n.label}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <button className="upgrade-btn" onClick={openUpgrade}>✦ Upgrade to Pro</button>
-          <button className="s-item" onClick={openHelp}><span className="ico">?</span>Help Center</button>
-          <button className="s-item" onClick={() => { logout(); navigate('/login') }}>
-            <span className="ico">→</span>Logout
-          </button>
-        </div>
-      </aside>
-
-      <header className="topbar">
-        <div className="search">
-          <span style={{color:'rgba(232,232,240,0.3)',fontSize:'13px'}}>🔍</span>
-          <input placeholder="Search resources..." />
-        </div>
-        <div className="t-right">
-          <button className="t-icon">🔔</button>
-          <button className="t-icon">⚙</button>
-          <div className="avatar">{firstName[0].toUpperCase()}</div>
-        </div>
-      </header>
+      <Topbar placeholder="Search resources..." />
 
       <main className="main">
         <div className="pg-header">
@@ -224,7 +244,7 @@ export default function Dashboard() {
             <div className="w-title">Hello <span>{firstName}</span></div>
             <div className="w-sub">{data?.subtitle || "You're making great progress towards your goal."}</div>
           </div>
-          <div className="ai-badge"><div className="ai-dot" />✦ AI Coach Online</div>
+          <div className="ai-badge" onClick={openHelp}><div className="ai-dot" />✦ AI Coach Online</div>
         </div>
 
         <div className="j-grid">
@@ -300,8 +320,6 @@ export default function Dashboard() {
           <button className="f-link">Contact Support</button>
         </div>
       </footer>
-
-      <button className="fab">🤖</button>
     </div>
   )
 }

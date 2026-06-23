@@ -5,27 +5,9 @@ import { progressAPI } from '../services/api'
 import useUIStore from '../store/uiStore'
 
 const styles = `
-
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
   .prog-root { display: block; min-height: 100vh; background: #0f1117; color: #e8e8f0; font-family: 'DM Sans', sans-serif; }
- 
-  /* SIDEBAR */
-  .sb { width: 200px; min-height: 100vh; background: #0a0b0f; border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; padding: 22px 0; position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; }
-  .sb-logo { padding: 0 18px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 14px; font-size: 16px; font-weight: 700; color: #818cf8; }
-  .sb-nav { flex: 1; padding: 0 10px; }
-  .sb-i { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 13px; color: rgba(232,232,240,0.45); cursor: pointer; transition: all 0.2s; background: none; border: none; width: 100%; text-align: left; margin-bottom: 2px; font-family: 'DM Sans', sans-serif; }
-  .sb-i:hover { background: rgba(255,255,255,0.05); color: rgba(232,232,240,0.8); }
-  .sb-i.active { background: rgba(99,102,241,0.15); color: #818cf8; }
-  .sb-i .ico { width: 20px; text-align: center; font-size: 14px; }
-  .sb-promo { margin: 0 10px 10px; background: linear-gradient(135deg,rgba(99,102,241,0.1),rgba(139,92,246,0.05)); border: 1px solid rgba(99,102,241,0.15); border-radius: 10px; padding: 14px; }
-  .promo-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; color: #e8e8f0; }
-  .promo-sub { font-size: 10px; color: rgba(232,232,240,0.4); margin-bottom: 12px; line-height: 1.5; }
-  .promo-btn { width: 100%; padding: 10px; background: linear-gradient(135deg,#6366f1,#8b5cf6); border: none; border-radius: 7px; color: white; font-size: 12px; font-weight: 600; cursor: pointer; margin-bottom: 8px; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; }
-  .promo-btn:hover { opacity: 0.85; }
-  .promo-btn-sec { background: transparent; border: 1px solid rgba(99,102,241,0.3); color: #818cf8; }
-  .promo-btn-sec:hover { background: rgba(99,102,241,0.08); }
-  .sb-bottom { padding: 10px; border-top: 1px solid rgba(255,255,255,0.06); }
  
   /* TOPBAR */
   .tb { position: fixed; top: 0; left: 200px; right: 0; height: 56px; background: rgba(15,17,23,0.97); border-bottom: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; z-index: 40; }
@@ -44,7 +26,7 @@ const styles = `
   .pg-sub { font-size: 14px; color: rgba(232,232,240,0.4); margin-bottom: 28px; animation: fadeUp 0.4s 0.05s ease both; }
  
   /* STATS GRID */
-  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 28px; animation: fadeUp 0.4s 0.08s ease both; }
+  .stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin-bottom: 28px; animation: fadeUp 0.4s 0.08s ease both; }
   .stat-card { background: #161821; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 20px; }
   .stat-lbl { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(232,232,240,0.3); font-family: 'DM Mono', monospace; margin-bottom: 10px; }
   .stat-num { font-size: 40px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
@@ -72,11 +54,6 @@ const styles = `
   .peak-label { position: absolute; top: -24px; right: 0; font-size: 12px; font-weight: 700; color: #a78bfa; }
   .week-labels { display: flex; justify-content: space-between; margin-top: 16px; padding: 0 8px; }
   .week-label { font-size: 10px; color: rgba(232,232,240,0.35); font-family: 'DM Mono', monospace; }
- 
-  .streak-card { background: #161821; border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center; animation: fadeUp 0.4s 0.12s ease both; }
-  .streak-icon { width: 56px; height: 56px; border-radius: 12px; background: rgba(139,92,246,0.15); display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 14px; }
-  .streak-val { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
-  .streak-lbl { font-size: 12px; color: rgba(232,232,240,0.4); }
  
   /* ACHIEVEMENTS & INSIGHTS */
   .section-grid { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
@@ -115,24 +92,12 @@ const styles = `
   .f-links { display: flex; gap: 20px; }
   .f-link { font-size: 11px; color: rgba(232,232,240,0.3); background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: color 0.2s; }
   .f-link:hover { color: rgba(232,232,240,0.6); }
- 
-  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
 `
- 
-const NAV = [
-  { ico: '⊞', label: 'Dashboard', id: 'dashboard', path: '/dashboard' },
-  { ico: '📍', label: 'Roadmap', id: 'roadmap', path: '/roadmap' },
-  { ico: '📊', label: 'Analytics', id: 'analytics', path: '/analytics' },
-  { ico: '🎤', label: 'Mock Interview', id: 'interview', path: '/interview' },
-  { ico: '⚡', label: 'Prep Hub', id: 'prep', path: '/prep' },
-  { ico: '📈', label: 'Progress', id: 'progress', path: '/progress' },
-]
  
 export default function Progress() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
-  const [active, setActive] = useState('progress')
   const [chartTab, setChartTab] = useState('technical')
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -201,31 +166,6 @@ export default function Progress() {
     <div className="prog-root">
       <style>{styles}</style>
  
-      {/* SIDEBAR */}
-      <aside className="sb">
-        <div className="sb-logo">Placifai AI</div>
-        <nav className="sb-nav">
-          {NAV.map(n => (
-            <button key={n.id} className={`sb-i ${active === n.id ? 'active' : ''}`}
-              onClick={() => { setActive(n.id); navigate(n.path) }}>
-              <span className="ico">{n.ico}</span>{n.label}
-            </button>
-          ))}
-        </nav>
-        <div className="sb-promo">
-          <div className="promo-title">Upgrade to Pro</div>
-          <div className="promo-sub">Get unlimited mock sessions and FAANG resume review</div>
-          <button className="promo-btn" onClick={openUpgrade}>Upgrade to Pro</button>
-          <button className="promo-btn promo-btn-sec" onClick={openUpgrade}>Learn More</button>
-        </div>
-        <div className="sb-bottom">
-          <button className="sb-i" onClick={openHelp}><span className="ico">?</span>Help Center</button>
-          <button className="sb-i" onClick={() => { logout(); navigate('/login') }}>
-            <span className="ico">→</span>Logout
-          </button>
-        </div>
-      </aside>
- 
       {/* TOPBAR */}
       <header className="tb">
         <div className="tb-search">
@@ -253,22 +193,10 @@ export default function Progress() {
             <div className="stat-bar"><div className="stat-fill" style={{ width: `${stats.readiness || 0}%` }} /></div>
           </div>
           <div className="stat-card">
-            <div className="stat-lbl">Total Practice</div>
-            <div className="stat-num">{stats.totalPracticeHours || 0}<span>h</span></div>
-            <div className="stat-desc">↗ Top 6% of candidates</div>
-            <div className="stat-bar"><div className="stat-fill" style={{ width: `${Math.min(100, (stats.totalPracticeHours / 200) * 100)}%` }} /></div>
-          </div>
-          <div className="stat-card">
             <div className="stat-lbl">Concepts Mastered</div>
             <div className="stat-num">{stats.conceptsMastered || 0}</div>
             <div className="stat-desc">Target: 100 concepts</div>
             <div className="stat-bar"><div className="stat-fill" style={{ width: `${Math.min(100, stats.conceptsMastered)}%` }} /></div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-lbl">Current Streak</div>
-            <div className="stat-num">{stats.currentStreakDays || 0}<span>d</span></div>
-            <div className="stat-desc">Keep it going!</div>
-            <div className="stat-bar"><div className="stat-fill" style={{ width: `${Math.min(100, (stats.currentStreakDays / 14) * 100)}%` }} /></div>
           </div>
         </div>
 

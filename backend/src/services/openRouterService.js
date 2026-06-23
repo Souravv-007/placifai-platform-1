@@ -9,6 +9,15 @@ const {
   buildSkillGapFallback,
 } = require('../utils/frontendData');
 
+// A list of currently available free models on OpenRouter
+const FREE_MODELS = [
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'qwen/qwen3-coder:free',
+  'meta-llama/llama-3.2-3b-instruct:free',
+  'deepseek/deepseek-v4-flash:free',
+  'google/gemma-2-9b-it:free'
+];
+
 class OpenRouterService {
   constructor() {
     this.apiKey = process.env.OPEN_ROUTER_API_KEY;
@@ -19,7 +28,7 @@ class OpenRouterService {
     return Boolean(this.apiKey) && this.apiKey !== 'your_openrouter_key';
   }
 
-  async callAPI(model, messages, temperature = 0.7, maxTokens = 2000) {
+  async callAPI(model, messages, temperature = 0.7, maxTokens = 2000, modelIndex = 0) {
     console.log(`--- OpenRouter API Call [${model}] ---`);
     if (!this.isConfigured()) {
       console.log('Error: OPEN_ROUTER_API_KEY not configured or is default');
@@ -48,16 +57,22 @@ class OpenRouterService {
 
       return response.data.choices[0]?.message?.content || '';
     } catch (error) {
-      if (error.response) {
-        console.error('OpenRouter API Error Response:', error.response.status, JSON.stringify(error.response.data));
-        // If 404 or specific error, maybe try a fallback model
-        if ((error.response.status === 404 || error.response.status === 400) && model !== 'meta-llama/llama-3.1-8b-instruct:free') {
-          console.log('Retrying with fallback model: meta-llama/llama-3.1-8b-instruct:free');
-          return this.callAPI('meta-llama/llama-3.1-8b-instruct:free', messages, temperature, maxTokens);
+      const status = error.response?.status;
+      const errorData = error.response?.data?.error;
+      
+      console.error(`OpenRouter API Error [${status}]:`, JSON.stringify(errorData || error.message));
+
+      // If we hit rate limits (429), payment issues (402), or missing models (404), try fallback models
+      if ([402, 429, 404, 400].includes(status)) {
+        if (modelIndex < FREE_MODELS.length) {
+          const nextModel = FREE_MODELS[modelIndex];
+          console.log(`Retrying with fallback free model (${modelIndex + 1}/${FREE_MODELS.length}): ${nextModel}`);
+          // Add a small delay for 429s
+          if (status === 429) await new Promise(r => setTimeout(r, 1000));
+          return this.callAPI(nextModel, messages, temperature, maxTokens, modelIndex + 1);
         }
-      } else {
-        console.error('OpenRouter API Network Error:', error.message);
       }
+      
       throw error;
     }
   }

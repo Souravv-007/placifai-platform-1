@@ -44,14 +44,6 @@ export const interviewAPI = {
   submitAnswer: (data) => api.post('/interview/answer', data),
   getHistory: () => api.get('/interview/history'),
 }
- 
-// Analytics APIs
-export const analyticsAPI = {
-  getSummary: () => api.get('/analytics/summary'),
-  getSkillGap: () => api.get('/analytics/skill-gap'),
-  getProgress: () => api.get('/analytics/progress'),
-  getReadiness: () => api.get('/analytics/readiness'),
-}
 
 export const dashboardAPI = {
   getSummary: () => api.get('/dashboard/summary'),
@@ -64,6 +56,20 @@ export const companyPrepAPI = {
 
 export const progressAPI = {
   getSummary: () => api.get('/progress/summary'),
+};
+
+export const aiAPI = {
+  ask: (question) => api.post('/ai/ask', { question }),
+  explainCode: (data) => api.post('/ai/explain-code', data),
+  getSolution: (data) => api.post('/ai/get-solution', data),
+};
+
+export const dojoAPI = {
+  getSummary: () => api.get('/dojo/summary'),
+  getChallenge: (id) => api.get(`/dojo/${id}`),
+  run: (id, data) => api.post(`/dojo/run/${id}`, data),
+  submit: (id, data) => api.post(`/dojo/submit/${id}`, data),
+  solve: (id) => api.post(`/dojo/solve/${id}`),
 };
 
 

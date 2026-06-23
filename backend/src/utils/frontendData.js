@@ -757,9 +757,27 @@ function buildSkillGapFallback(currentSkills = [], targetRole = 'Senior Software
   };
 }
 
+function buildAIChatFallback(question = '') {
+  const q = question.toLowerCase();
+  if (q.includes('resume')) {
+    return "To improve your resume, focus on quantifying your impact with metrics (%, $, time saved). Ensure you use strong action verbs and align your keywords with the specific job description you're targeting.";
+  }
+  if (q.includes('system design') || q.includes('architecture')) {
+    return "For system design, master the fundamentals of scalability: sharding, caching strategies, load balancing, and database consistency models. Practice drawing out end-to-end flows for common systems like URL shorteners or feed services.";
+  }
+  if (q.includes('interview') || q.includes('mock')) {
+    return "Consistent practice is key. Use our Mock Interview tool to simulate high-pressure scenarios. Focus on the STAR method (Situation, Task, Action, Result) for behavioral questions to ensure your answers are structured and impactful.";
+  }
+  if (q.includes('salary') || q.includes('negotiation')) {
+    return "When negotiating salary, research market rates for your role and location using tools like levels.fyi. Always lead with the value you bring to the company and try to have multiple offers to increase your leverage.";
+  }
+  return "That's a great question! As your AI Coach, I recommend focusing on consistent skill-building and mock practice. You can explore your personalized Roadmap or the Prep Hub for targeted resources based on your target role.";
+}
+
 module.exports = {
   calculateRoadmapProgress,
   buildAnalyticsPayload,
+  buildAIChatFallback,
   buildCompanyInsightsFallback,
   buildCompanyPrepDetail,
   buildCompanyPrepSummaries,
